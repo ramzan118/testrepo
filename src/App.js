@@ -3,7 +3,7 @@ import './App.css';
 import Navbar from './components/Navbar';
 import './App.css';
 import TextForm from './components/TextForm';
-//let name ="Muhammad Ramzan for test";
+//let name ="Muhammad Ramzan for test 1";
 function App() {
   return (
     <>
