@@ -2,7 +2,7 @@
 set -e
 
 # Navigate to the project directory
-cd /home/muhammad/Textutility/TextUtility1
+cd /var/www/html
 
 # Pull the latest changes
 git pull origin main
