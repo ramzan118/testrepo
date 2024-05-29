@@ -21,7 +21,7 @@ jobs:
 
     - name: Deploy to Server 1
       run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@*** 'bash -s' < ./deploy.sh
+        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER1 }} 'bash -s' < ./deploy.sh
       env:
         SERVER: ${{ secrets.SERVER1 }}
     
