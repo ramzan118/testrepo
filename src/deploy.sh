@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Navigate to the application directory
-cd /var/www/html/my-app
+cd /var/www/html
 
 # Pull the latest code
 git pull
