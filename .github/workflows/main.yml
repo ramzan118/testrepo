@@ -1,4 +1,4 @@
-name: Deploy to AWS Servers
+name: Blue-Green Deployment to AWS Servers
 
 on:
   push:
@@ -31,7 +31,8 @@ jobs:
 
     - name: Switch Load Balancer to Server 1
       run: |
-        aws elbv2 modify-target-group-attributes --target-group-arn arn:aws:elasticloadbalancing:ap-south-1:123456789012:targetgroup/my-target-group/1234567890123456 --attributes Key=stickiness.enabled,Value=true
+        aws elbv2 register-targets --target-group-arn arn:aws:elasticloadbalancing:ap-south-1:123456789012:targetgroup/my-target-group/1234567890123456 --targets Id=${{ secrets.SERVER1 }}
+        aws elbv2 deregister-targets --target-group-arn arn:aws:elasticloadbalancing:ap-south-1:123456789012:targetgroup/my-target-group/1234567890123456 --targets Id=${{ secrets.SERVER2 }}
 
     - name: Deploy to Server 2
       run: |
@@ -45,4 +46,5 @@ jobs:
 
     - name: Switch Load Balancer to Server 2
       run: |
-        aws elbv2 modify-target-group-attributes --target-group-arn arn:aws:elasticloadbalancing:ap-south-1:123456789012:targetgroup/my-target-group/1234567890123456 --attributes Key=stickiness.enabled,Value=true
+        aws elbv2 register-targets --target-group-arn arn:aws:elasticloadbalancing:ap-south-1:123456789012:targetgroup/my-target-group/1234567890123456 --targets Id=${{ secrets.SERVER2 }}
+        aws elbv2 deregister-targets --target-group-arn arn:aws:elasticloadbalancing:ap-south-1:123456789012:targetgroup/my-target-group/1234567890123456 --targets Id=${{ secrets.SERVER1 }}
