@@ -70,7 +70,8 @@ jobs:
 
       - name: Deploy to Blue environment (Server1)
         run: |
-          scp -o StrictHostKeyChecking=no TextUtility1.zip root@43.205.147.204:/home/ubuntu/
+          scp -v -o StrictHostKeyChecking=no TextUtility1.zip root@43.205.147.204:/home/ubuntu/
+
 
       - name: Update ELB to point to Blue environment (Server1)
         run: |
