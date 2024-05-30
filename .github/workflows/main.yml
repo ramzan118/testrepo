@@ -56,6 +56,9 @@ jobs:
     - name: Create SSH directory
       run: mkdir -p $HOME/.ssh
 
+    - name: Check if SSH key exists
+      run: test -f $HOME/.ssh/id_rsa && echo "SSH key exists" || echo "SSH key does not exist"
+
     - name: Set permissions for SSH directory and key
       run: chmod 700 $HOME/.ssh && chmod 600 $HOME/.ssh/id_rsa
 
