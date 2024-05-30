@@ -10,88 +10,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Install AWS CLI
-        run: |
-          if command -v aws &> /dev/null; then
-            echo "AWS CLI is already installed. Updating..."
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install --update
-          else
-            echo "Installing AWS CLI..."
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-          fi
+    - name: Deploy to Green environment
+      run: |
+        ssh ubuntu@143.205.147.204 'git clone https://github.com/ramzan118/TextUtility1.git && cd TextUtility1 && ./deploy.sh'
 
-      - name: Create deployment scripts
-        run: |
-          mkdir -p scripts
-          echo '#!/bin/bash' > scripts/install_dependencies.sh
-          echo 'sudo apt-get update' >> scripts/install_dependencies.sh
-          echo 'sudo apt-get install -y nginx' >> scripts/install_dependencies.sh
-          chmod +x scripts/install_dependencies.sh
+    - name: Run tests
+      run: |
+        curl http://niete-test-lb-65841074.ap-south-1.elb.amazonaws.com/
 
-          echo '#!/bin/bash' > scripts/start_server.sh
-          echo 'sudo systemctl start nginx' >> scripts/start_server.sh
-          chmod +x scripts/start_server.sh
-
-          echo '#!/bin/bash' > scripts/stop_server.sh
-          echo 'sudo systemctl stop nginx' >> scripts/stop_server.sh
-          chmod +x scripts/stop_server.sh
-
-      - name: Zip application files
-        run: zip -r TextUtility1.zip . -x .git/\*
-
-      - name: Create SSH directory
-        run: mkdir -p $HOME/.ssh
-
-      - name: Check if SSH key exists
-        run: test -f $HOME/.ssh/id_rsa && echo "SSH key exists" || echo "SSH key does not exist"
-
-      - name: Set permissions for SSH directory and key
-        run: mkdir -p $HOME/.ssh && chmod 700 $HOME/.ssh && if [ -f "$HOME/.ssh/id_rsa" ]; then chmod 600 $HOME/.ssh/id_rsa; fi
-
-      - name: Write SSH private key to file
-        run: echo "$SSH_PRIVATE_KEY" > $HOME/.ssh/id_rsa
-
-      - name: Fix permissions for SSH private key
-        run: chmod 600 $HOME/.ssh/id_rsa
-
-      - name: Deploy to Blue environment (Server1)
-        run: |
-          scp -v -o StrictHostKeyChecking=no TextUtility1.zip root@43.205.147.204:/home/ubuntu/
-
-
-      - name: Update ELB to point to Blue environment (Server1)
-        run: |
-          aws elb register-instances-with-load-balancer \
-            --load-balancer-name niete-test-lb \
-            --instances $(aws ec2 describe-instances --filters "Name=private-ip-address,Values=43.205.147.204" --query "Reservations[].Instances[].InstanceId" --output text)
-
-          aws elb deregister-instances-from-load-balancer \
-            --load-balancer-name niete-test-lb \
-            --instances $(aws ec2 describe-instances --filters "Name=private-ip-address,Values=13.126.111.139" --query "Reservations[].Instances[].InstanceId" --output text)
-
-      - name: Deploy to Green environment (Server2)
-        run: |
-          scp -o StrictHostKeyChecking=no -i $HOME/.ssh/id_rsa TextUtility1.zip root@13.126.111.139:/home/ubuntu/
-          scp -o StrictHostKeyChecking=no -i $HOME/.ssh/id_rsa -r scripts root@13.126.111.139:/home/ubuntu/
-          ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/id_rsa root@13.126.111.139 'unzip /home/ubuntu/TextUtility1.zip -d /var/www/html/'
-          ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/id_rsa root@13.126.111.139 'bash /home/ubuntu/scripts/install_dependencies.sh'
-          ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/id_rsa root@13.126.111.139 'bash /home/ubuntu/scripts/start_server.sh'
-
-      - name: Update ELB to point to Green environment (Server2)
-        run: |
-          aws elb register-instances-with-load-balancer \
-            --load-balancer-name niete-test-l
+    - name: Switch to Green environment
+      run: |
+        ssh ubuntu@13.126.111.139 'git clone https://github.com/ramzan118/TextUtility1.git && cd TextUtility1 && ./deploy.sh'
