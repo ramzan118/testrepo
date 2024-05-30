@@ -57,7 +57,7 @@ jobs:
       run: mkdir -p $HOME/.ssh
 
     - name: Set permissions for SSH directory and key
-      run: chmod 700 $HOME/.ssh && chmod 600 $HOME/.ssh/id_rsa
+      run: chmod 700 $HOME/.ssh && chmod 600 /root/.ssh/id_rsa
 
     - name: Write SSH private key to file
       run: echo "$SSH_PRIVATE_KEY" > $HOME/.ssh/id_rsa
