@@ -20,7 +20,7 @@ jobs:
 
     - name: Deploy to Green environment
       run: |
-        ssh ubuntu@143.205.147.204 'git clone https://github.com/ramzan118/TextUtility1.git && cd TextUtility1 && ./deploy.sh'
+        ssh ubuntu@43.205.147.204 'git clone https://github.com/ramzan118/TextUtility1.git && cd TextUtility1 && ./deploy.sh'
 
     - name: Run tests
       run: |
