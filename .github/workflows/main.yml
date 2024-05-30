@@ -56,10 +56,14 @@ jobs:
     - name: Create SSH directory
       run: mkdir -p $HOME/.ssh
 
+    - name: Set permissions for SSH directory and key
+      run: chmod 700 $HOME/.ssh && chmod 600 $HOME/.ssh/id_rsa
+
+    - name: Write SSH private key to file
+      run: echo "$SSH_PRIVATE_KEY" > $HOME/.ssh/id_rsa
+
     - name: Deploy to Blue environment (Server1)
       run: |
-        echo "$SSH_PRIVATE_KEY" > $HOME/.ssh/id_rsa
-        chmod 600 $HOME/.ssh/id_rsa
         scp -o StrictHostKeyChecking=no TextUtility1.zip root@43.205.147.204:/home/ubuntu/
 
     - name: Update ELB to point to Blue environment (Server1)
