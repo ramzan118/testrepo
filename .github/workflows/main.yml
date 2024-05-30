@@ -55,11 +55,9 @@ jobs:
 
     - name: Deploy to Blue environment (Server1)
       run: |
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa TextUtility1.zip ubuntu@43.205.147.204:/home/ubuntu/
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r scripts ubuntu@43.205.147.204:/home/ubuntu/
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@43.205.147.204 'unzip /home/ubuntu/TextUtility1.zip -d /var/www/html/'
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@43.205.147.204 'bash /home/ubuntu/scripts/install_dependencies.sh'
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@43.205.147.204 'bash /home/ubuntu/scripts/start_server.sh'
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        scp -o StrictHostKeyChecking=no TextUtility1.zip ubuntu@43.205.147.204:/home/ubuntu/
 
     - name: Update ELB to point to Blue environment (Server1)
       run: |
