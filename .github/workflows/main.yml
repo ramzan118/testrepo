@@ -31,7 +31,7 @@ jobs:
         mkdir -p scripts
         echo '#!/bin/bash' > scripts/install_dependencies.sh
         echo 'sudo apt-get update' >> scripts/install_dependencies.sh
-        echo 'sudo apt-get install -y nginx' >> scripts.install_dependencies.sh
+        echo 'sudo apt-get install -y nginx' >> scripts/install_dependencies.sh
         chmod +x scripts/install_dependencies.sh
 
         echo '#!/bin/bash' > scripts/start_server.sh
@@ -47,36 +47,36 @@ jobs:
 
     - name: Deploy to Blue environment (Server1)
       run: |
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa TextUtility1.zip ec2-user@43.205.147.204:/home/ec2-user/
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r scripts ec2-user@43.205.147.204:/home/ec2-user/
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@43.205.147.204 'unzip /home/ec2-user/TextUtility1.zip -d /var/www/html/'
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@43.205.147.204 'bash /home/ec2-user/scripts/install_dependencies.sh'
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@43.205.147.204 'bash /home/ec2-user/scripts/start_server.sh'
+        scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa TextUtility1.zip ubuntu@43.205.147.204:/home/ubuntu/
+        scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r scripts ubuntu@43.205.147.204:/home/ubuntu/
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@43.205.147.204 'unzip /home/ubuntu/TextUtility1.zip -d /var/www/html/'
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@43.205.147.204 'bash /home/ubuntu/scripts/install_dependencies.sh'
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@43.205.147.204 'bash /home/ubuntu/scripts/start_server.sh'
 
     - name: Update ELB to point to Blue environment (Server1)
       run: |
         aws elb register-instances-with-load-balancer \
           --load-balancer-name niete-test-lb \
-          --instances i-blue-instance-id
+          --instances $(aws ec2 describe-instances --filters "Name=private-ip-address,Values=43.205.147.204" --query "Reservations[].Instances[].InstanceId" --output text)
 
         aws elb deregister-instances-from-load-balancer \
           --load-balancer-name niete-test-lb \
-          --instances i-green-instance-id
+          --instances $(aws ec2 describe-instances --filters "Name=private-ip-address,Values=13.126.111.139" --query "Reservations[].Instances[].InstanceId" --output text)
 
     - name: Deploy to Green environment (Server2)
       run: |
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa TextUtility1.zip ec2-user@13.126.111.139:/home/ec2-user/
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r scripts ec2-user@13.126.111.139:/home/ec2-user/
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@13.126.111.139 'unzip /home/ec2-user/TextUtility1.zip -d /var/www/html/'
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@13.126.111.139 'bash /home/ec2-user/scripts/install_dependencies.sh'
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@13.126.111.139 'bash /home/ec2-user/scripts/start_server.sh'
+        scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa TextUtility1.zip ubuntu@13.126.111.139:/home/ubuntu/
+        scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r scripts ubuntu@13.126.111.139:/home/ubuntu/
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@13.126.111.139 'unzip /home/ubuntu/TextUtility1.zip -d /var/www/html/'
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@13.126.111.139 'bash /home/ubuntu/scripts/install_dependencies.sh'
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@13.126.111.139 'bash /home/ubuntu/scripts/start_server.sh'
 
     - name: Update ELB to point to Green environment (Server2)
       run: |
         aws elb register-instances-with-load-balancer \
           --load-balancer-name niete-test-lb \
-          --instances i-green-instance-id
+          --instances $(aws ec2 describe-instances --filters "Name=private-ip-address,Values=13.126.111.139" --query "Reservations[].Instances[].InstanceId" --output text)
 
         aws elb deregister-instances-from-load-balancer \
           --load-balancer-name niete-test-lb \
-          --instances i-blue-instance-id
+          --instances $(aws ec2 describe-instances --filters "Name=private-ip-address,Values=43.205.147.204" --query "Reservations[].Instances[].InstanceId" --output text)
