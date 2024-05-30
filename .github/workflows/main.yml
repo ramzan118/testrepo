@@ -18,6 +18,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-south-1
 
     - name: Install AWS CLI
       run: |
@@ -30,7 +31,7 @@ jobs:
         mkdir -p scripts
         echo '#!/bin/bash' > scripts/install_dependencies.sh
         echo 'sudo apt-get update' >> scripts/install_dependencies.sh
-        echo 'sudo apt-get install -y nginx' >> scripts/install_dependencies.sh
+        echo 'sudo apt-get install -y nginx' >> scripts.install_dependencies.sh
         chmod +x scripts/install_dependencies.sh
 
         echo '#!/bin/bash' > scripts/start_server.sh
@@ -46,11 +47,11 @@ jobs:
 
     - name: Deploy to Blue environment (Server1)
       run: |
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa TextUtility1.zip ec2-user@143.205.147.204:/home/ec2-user/
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r scripts ec2-user@143.205.147.204:/home/ec2-user/
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@143.205.147.204 'unzip /home/ec2-user/TextUtility1.zip -d /var/www/html/'
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@143.205.147.204 'bash /home/ec2-user/scripts/install_dependencies.sh'
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@143.205.147.204 'bash /home/ec2-user/scripts/start_server.sh'
+        scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa TextUtility1.zip ec2-user@43.205.147.204:/home/ec2-user/
+        scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r scripts ec2-user@43.205.147.204:/home/ec2-user/
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@43.205.147.204 'unzip /home/ec2-user/TextUtility1.zip -d /var/www/html/'
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@43.205.147.204 'bash /home/ec2-user/scripts/install_dependencies.sh'
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@43.205.147.204 'bash /home/ec2-user/scripts/start_server.sh'
 
     - name: Update ELB to point to Blue environment (Server1)
       run: |
