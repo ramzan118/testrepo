@@ -72,11 +72,11 @@ jobs:
 
     - name: Deploy to Green environment (Server2)
       run: |
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa TextUtility1.zip ubuntu@13.126.111.139:/home/ubuntu/
+        scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa TextUtility1.zip root@13.126.111.139:/home/ubuntu/
         scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r scripts ubuntu@13.126.111.139:/home/ubuntu/
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@13.126.111.139 'unzip /home/ubuntu/TextUtility1.zip -d /var/www/html/'
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@13.126.111.139 'bash /home/ubuntu/scripts/install_dependencies.sh'
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@13.126.111.139 'bash /home/ubuntu/scripts/start_server.sh'
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@13.126.111.139 'unzip /home/ubuntu/TextUtility1.zip -d /var/www/html/'
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@13.126.111.139 'bash /home/ubuntu/scripts/install_dependencies.sh'
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@13.126.111.139 'bash /home/ubuntu/scripts/start_server.sh'
 
     - name: Update ELB to point to Green environment (Server2)
       run: |
