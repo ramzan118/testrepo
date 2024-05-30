@@ -58,7 +58,7 @@ jobs:
         mkdir -p ~/.ssh
         echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        scp -o StrictHostKeyChecking=no TextUtility1.zip ubuntu@43.205.147.204:/home/ubuntu/
+        scp -vvv -o StrictHostKeyChecking=no TextUtility1.zip ubuntu@43.205.147.204:/home/ubuntu/
 
     - name: Update ELB to point to Blue environment (Server1)
       run: |
