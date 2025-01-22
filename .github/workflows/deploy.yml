@@ -2,7 +2,7 @@ name: Comment Deployment
 
 on:
   issue_comment:
-    types: [test]
+    types: [created]
 
 jobs:
   deploy:
