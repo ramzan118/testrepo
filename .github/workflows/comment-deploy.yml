@@ -1,0 +1,49 @@
+name: Comment Deployment
+
+on:
+  issue_comment:
+    types: [test]
+
+jobs:
+  deploy:
+    if: contains(github.event.comment.body, '/deploy')
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: true
+        tags: |
+          YOUR_DOCKER_USER/comment-deploy:latest
+        secrets: |
+          "username=${{ secrets.DOCKER_USERNAME }}"
+          "password=${{ secrets.DOCKER_PASSWORD }}"
+
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+
+    - name: Configure cluster
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
+
+    - name: Deploy to Kubernetes
+      run: |
+        kubectl set image deployment/comment-deploy app=muhammad679/comment-deploy:latest
+        kubectl rollout status deployment/comment-deploy
+        kubectl get pods
+
+    - name: Post comment response
+      uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: "🚀 Deployment successful!\nAccess using: http://YOUR_NODE_IP:30007"
+          })
