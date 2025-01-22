@@ -45,5 +45,5 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: "🚀 Deployment successful!\nAccess using: http://175.107.195.149:30007"
+            body: "🚀 Deployment successful!\nAccess using: http://YOUR_NODE_IP:30007"
           })
