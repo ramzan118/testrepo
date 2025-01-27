@@ -18,7 +18,10 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+    - name: Add remote server to known_hosts
+      run: |
+        ssh-keyscan -p 22 203.170.77.228 >> ~/.ssh/known_hosts
+
     - name: Deploy to server
       run: |
         ssh -p 22 developer@203.170.77.228 "cd /home/developer/deploy-folder && git pull origin main"
-
