@@ -24,4 +24,4 @@ jobs:
 
     - name: Deploy to server
       run: |
-        ssh -p 22 developer@203.170.77.228 "cd /home/developer/deploy-folder && git pull origin main"
+        ssh -vvv -p 22 developer@203.170.77.228 "cd /home/developer/deploy-folder && git pull origin main"
