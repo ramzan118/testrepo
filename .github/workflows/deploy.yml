@@ -18,8 +18,12 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+    - name: List SSH keys (debug)
+      run: ssh-add -l
+
     - name: Add remote server to known_hosts
       run: |
+        mkdir -p ~/.ssh
         ssh-keyscan -p 22 203.170.77.228 >> ~/.ssh/known_hosts
 
     - name: Deploy to server
