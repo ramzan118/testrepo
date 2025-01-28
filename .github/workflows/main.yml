@@ -3,7 +3,7 @@ name: Deploy to Remote Server
 on:
   push:
     branches:
-      - remotebranch
+      ramzan118-patch-1
 
 jobs:
   deploy:
