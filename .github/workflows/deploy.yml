@@ -13,19 +13,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Add SSH key
-      uses: webfactory/ssh-agent@v0.5.3
+    - name: Copy files via SSH
+      uses: appleboy/scp-action@v0.1.0
       with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-    - name: List SSH keys (debug)
-      run: ssh-add -l
-
-    - name: Add remote server to known_hosts
-      run: |
-        mkdir -p ~/.ssh
-        ssh-keyscan -p 22 203.170.77.228 >> ~/.ssh/known_hosts
-
-    - name: Deploy to server
-      run: |
-        ssh -vvv -p 22 developer@203.170.77.228 "cd /home/developer/deploy-folder && git pull origin main"
+        host: ${{ secrets.REMOTE_HOST }}
+        username: ${{ secrets.REMOTE_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        source: "index.html"
+        target: "/var/www/html"
