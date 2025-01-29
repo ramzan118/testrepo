@@ -1,52 +1,37 @@
-name: Comment Deployment
+name: Deploy to Remote Server
 
 on:
-  issue_comment:
-    types: [created]
-    branches: [main]  # Only trigger for comments on main branch
+  push:
+    branches:
+        - ramzan118-patch-1
 
 jobs:
   deploy:
-    if: contains(github.event.comment.body, '/deploy')
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v2
+
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.5.3
       with:
-        ref: main  # Checkout code from main branch
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v4
-      with:
-        context: .
-        push: true
-        tags: |
-          muhammad679/comment-deploy:latest
-        secrets: |
-          "username=${{ secrets.DOCKER_USERNAME }}"
-          "password=${{ secrets.DOCKER_PASSWORD }}"
-
-    - name: Setup kubectl
-      uses: azure/setup-kubectl@v3
-
-    - name: Configure cluster
+    - name: Deploy via SSH
       run: |
-        mkdir -p ~/.kube
-        echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
-
-    - name: Deploy to Kubernetes
-      run: |
-        kubectl set image deployment/comment-deploy app=muhammad679/comment-deploy:latest
-        kubectl rollout status deployment/comment-deploy
-        kubectl get pods
-
-    - name: Post comment response
-      uses: actions/github-script@v6
-      with:
-        script: |
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: "🚀 Deployment successful!\nAccess using: http://175.107.195.149:30007"
-          })
+        ssh -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@203.170.77.228 -p 22 << 'EOF'
+          cd /var/www/html
+          git stash
+          git pull origin ramzan118-patch-1
+          git stash pop
+          
+          # Set Node.js environment variable to allow legacy OpenSSL support
+          export NODE_OPTIONS=--openssl-legacy-provider
+          
+          npm install --force
+          npm run build
+          rm -rf /var/www/html/textutility/*
+          cp -R /var/www/html/build/* /var/www/html/textutility/
+          sudo systemctl restart nginx
+        EOF
