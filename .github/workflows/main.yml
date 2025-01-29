@@ -26,9 +26,9 @@ jobs:
           git pull origin ramzan118-patch-1
           git stash pop
           
-          # Set Node.js environment variable for legacy OpenSSL support
+          # Set Node.js environment variable to allow legacy OpenSSL support
           export NODE_OPTIONS=--openssl-legacy-provider
-
+          
           npm install --force
           npm run build
           rm -rf /var/www/html/textutility/*
