@@ -21,9 +21,12 @@ jobs:
     - name: Deploy via SSH
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@203.170.77.228 -p 22 << 'EOF'
-          cd /var/www/html
+          cd /var/www/html/textutility
           git stash
           git pull origin ramzan118-patch-1
           git stash pop
+          npm install --force
+          npm run build
+          sudo systemctl restart nginx
           # Add any additional deployment commands here
         EOF
