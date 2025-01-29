@@ -28,5 +28,4 @@ jobs:
           npm install --force
           npm run build
           sudo systemctl restart nginx
-          # Add any additional deployment commands here
         EOF
