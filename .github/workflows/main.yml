@@ -21,7 +21,7 @@ jobs:
     - name: Deploy via SSH
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@203.170.77.228 -p 22 << 'EOF'
-          cd /var/www/html
+          cd /var/www/html/textutility
           git stash
           git pull origin ramzan118-patch-1
           git stash pop
@@ -30,6 +30,6 @@ jobs:
           npm install --force
           npm run build
           rm -rf /var/www/html/textutility/*
-          cp -R /var/www/html/build/* /var/www/html/textutility/
+          cp -R /var/www/html/textutility/build/* /var/www/html/textutility/
           sudo systemctl restart nginx
         EOF
